@@ -47,7 +47,11 @@ export class OrderModal {
     await this.closeButton.click();
   }
 
+  /** Clicks OK on the success popup. The site then goes back to the home page. */
   async acknowledgeConfirmation() {
+    // The popup ignores its OK callback until it gets the "visible" class, 500 ms after it opens.
+    // An earlier click only closes the popup and the page stays on the cart.
+    await expect(this.confirmation).toHaveClass(/\bvisible\b/);
     await this.confirmation.getByRole('button', { name: 'OK', exact: true }).click();
   }
 

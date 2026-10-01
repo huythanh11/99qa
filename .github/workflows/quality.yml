@@ -10,8 +10,8 @@ on:
         type: choice
         options: [smoke, regression, mobile, known-bugs, performance]
         default: smoke
-  schedule:
-    - cron: '0 2 * * 1' # weekly regression, mobile and performance, Monday 02:00 UTC
+  # schedule:
+  #   - cron: '0 2 * * 1' # weekly regression, mobile and performance, Monday 02:00 UTC
 permissions:
   contents: read
 concurrency:
