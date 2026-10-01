@@ -6,7 +6,6 @@ What is in the repo:
 
 - **Test cases:** [`test-cases/DemoBlaze-Test-Suite.xlsx`](test-cases/DemoBlaze-Test-Suite.xlsx). 59 cases for Login, Cart, Checkout and API. 40 are automated, 19 were run manually. The `Automated` column shows which ones have a test; the case ID is in the test title.
 - **Findings:** the `Findings` sheet of the same workbook. 9 bugs with steps, actual result and a suggested fix.
-- **Demo recording:** [`docs/evidence/demo-purchase.webm`](docs/evidence/demo-purchase.webm), login to purchase.
 
 ## Bugs found
 
