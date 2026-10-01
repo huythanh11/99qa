@@ -1,0 +1,38 @@
+{
+  "name": "demoblaze-quality-engineering",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright tests for DemoBlaze login, cart and checkout",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "test": "playwright test --project=chromium --project=api --grep-invert @known-bug",
+    "test:demo": "playwright test --project=chromium --grep @demo",
+    "test:smoke": "playwright test --project=chromium --project=api --grep @smoke",
+    "test:regression": "playwright test --project=chromium --project=firefox --project=webkit --project=api --grep-invert @known-bug",
+    "test:mobile": "playwright test --project=mobile-chrome --grep @smoke",
+    "test:api": "playwright test --project=api --grep-invert @known-bug",
+    "test:known-bugs": "playwright test --project=chromium --project=api --grep @known-bug",
+    "test:unit": "playwright test --project=unit",
+    "test:performance": "playwright test --project=performance",
+    "test:all": "playwright test",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "report": "playwright show-report reports/html",
+    "evidence": "node scripts/summarize-results.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^20.19.43",
+    "dotenv": "^18.0.4",
+    "eslint": "^10.11.0",
+    "prettier": "^3.9.9",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.0"
+  }
+}

@@ -1,0 +1,70 @@
+name: Quality checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Suite to execute
+        type: choice
+        options: [smoke, regression, mobile, known-bugs, performance]
+        default: smoke
+  schedule:
+    - cron: '0 2 * * 1' # weekly regression, mobile and performance, Monday 02:00 UTC
+permissions:
+  contents: read
+concurrency:
+  group: qa-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: ${{ fromJSON(github.event_name == 'schedule' && '["regression","mobile","performance"]' || format('["{0}"]', inputs.suite || 'smoke')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: true
+      WORKERS: 1
+      RETRIES: 1
+      SUITE: ${{ matrix.suite }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck && npm run lint && npm run format:check
+      - name: Install browsers needed by the selected suite
+        run: |
+          case "$SUITE" in
+            regression) npx playwright install --with-deps chromium firefox webkit ;;
+            performance) echo "no browser needed" ;;
+            *) npx playwright install --with-deps chromium ;;
+          esac
+      - name: Unit tests for helpers
+        if: matrix.suite != 'performance'
+        run: npm run test:unit -- --reporter=list
+      - name: Run ${{ env.SUITE }} suite
+        run: |
+          case "$SUITE" in
+            known-bugs) RETRIES=0 npm run test:known-bugs ;;
+            *) npm run "test:$SUITE" ;;
+          esac
+      - name: Summarize results
+        if: always()
+        run: |
+          if [ -f reports/results.json ]; then
+            npm run evidence -- reports/results.json "ci-${SUITE}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-${{ env.SUITE }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            reports/
+            docs/evidence/ci-*.json
+          retention-days: 14
